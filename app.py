@@ -2,12 +2,17 @@ from flask import Flask, request
 import torch as Torch
 from helper import *
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, AutoModelForCausalLM, AutoModelForQuestionAnswering
+import download_model
 
 app = Flask(__name__)
 
 app.config["TRANSFORMERS_OFFLINE"] = 1 #to only use local models downloaded previously
 # app.config["FLASK_ENV"] = "development"
 
+@app.route('/download', methods=["POST"])
+def download():
+    download_model.download()
+    return "success"
 
 @app.route('/sentiment', methods=["POST"])
 def sentiment():
@@ -17,7 +22,6 @@ def sentiment():
     model: 
         distilbert-base-uncased-finetuned-sst-2-english
     """
-    
     data = request.get_json()
     path = data.get("model", None) or "distilbert-base-uncased-finetuned-sst-2-english"
     path = "models/" + path
